@@ -1,4 +1,4 @@
-name: "Simple Merge"
+name: "Stupid Simple Merge"
 description: "Does exactly what it says on the tin"
 inputs:
   source:

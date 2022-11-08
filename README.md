@@ -1,1 +1,1 @@
-Simple merge action. Merges. Simply.
+Stupid simple merge action. Merges. Simply.
