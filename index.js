@@ -32,7 +32,7 @@ async function run() {
 
     let status = "error";
 
-    const res = await octokit.repos.merge({
+    const res = await octokit.rest.repos.merge({
       owner,
       repo,
       base,
