@@ -1,5 +1,8 @@
 name: "Stupid Simple Merge"
 description: "Does exactly what it says on the tin"
+branding:
+  icon: 'git-merge'
+  color: 'red'
 inputs:
   source:
     description: "Source branch to merge from"
