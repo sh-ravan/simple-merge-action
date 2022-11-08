@@ -1,13 +1,21 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: "Simple Merge"
+description: "Does exactly what it says on the tin"
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  source:
+    description: "Source branch to merge from"
     required: true
-    default: '1000'
+  target:
+    description: "Target branch to merge into"
+    required: true
+  commit_message:
+    description: "Commit message (defaults to '🤖 Automatic Merge - source -> target')"
+    required: false
+  github_token:
+    description: "GitHub token"
+    required: true
 outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  status: # output will be available to future steps
+    description: "One of 'success', 'warning', 'failure' and, 'error'"
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"

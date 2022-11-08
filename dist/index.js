@@ -2828,23 +2828,36 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(186);
 const github = __nccwpck_require__(716);
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
-    const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
-    const owner =
-      core.getInput("owner") ||
-      (process.env.GITHUB_REPOSITORY || "").split("/")[0];
-    const repo =
-      core.getInput("repo") ||
-      (process.env.GITHUB_REPOSITORY || "").split("/")[1];
-    const head = core.getInput("source-branch");
-    const base = core.getInput("target-branch");
+    const github_token = core.getInput("github_token");
+    const head = core.getInput("source");
+    const base = core.getInput("target");
     const commit_message =
-      core.getInput("commit-message") || `Automatic Merge - ${head} -> ${base}`;
+      core.getInput("commit_message") ||
+      `🤖 Automatic Merge - ${head} -> ${base}`;
 
-    core.debug(new Date().toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    const octokit = github.getOctokit(GITHUB_TOKEN);
+    if (!github_token) {
+      return core.setFailed("github_token was not specified");
+    }
+
+    const octokit = github.getOctokit(github_token);
+    const owner = (process.env.GITHUB_REPOSITORY || "").split("/")[0];
+    const repo = (process.env.GITHUB_REPOSITORY || "").split("/")[1];
+
+    if (!owner) {
+      return core.setFailed(
+        `Owner of the repository was not specified and could not be derived from GITHUB_REPOSITORY env variable (${process.env.GITHUB_REPOSITORY})`
+      );
+    }
+
+    if (!repo) {
+      return core.setFailed(
+        `Repository name was not specified and could not be derived from GITHUB_REPOSITORY env variable (${process.env.GITHUB_REPOSITORY})`
+      );
+    }
+
+    let status = "error";
 
     const res = await octokit.repos.merge({
       owner,
@@ -2854,30 +2867,35 @@ async function run() {
       commit_message,
     });
 
-    if (res && res.data) {
+    if (res) {
       switch (res.status) {
         case 201:
           core.info(`Merged ${head} -> ${base} (${res.data.sha || ""})`);
+          status = "success";
           break;
 
         case 204:
           core.info(
             "Target branch already contains changes from source branch. Nothing to merge"
           );
+          status = "success";
           break;
 
         case 409:
           core.setFailed(`Merge conflict. ${res.data.message || ""}`);
+          status = "failure";
           break;
 
         case 404:
           core.setFailed(`Branch not found. ${res.data.message || ""}`);
+          status = "failure";
           break;
 
         default:
           core.warning(
             `Merge action has completed, but with an unknown status code: ${res.status}`
           );
+          status = "warning";
       }
     } else {
       return core.setFailed(
@@ -2885,9 +2903,7 @@ async function run() {
       );
     }
 
-    core.info(new Date().toTimeString());
-
-    core.setOutput("time", new Date().toTimeString());
+    core.setOutput("status", status);
   } catch (error) {
     core.setFailed(error.message);
   }
