@@ -20,5 +20,7 @@ outputs:
   status: # output will be available to future steps
     description: "One of 'success', 'warning', 'failure' and, 'error'"
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.myInput }}
